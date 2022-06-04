@@ -82,10 +82,7 @@ app.get('/product-details/:id', (req, res) => {
     options
     )
   .then(
-    response => {
-      let result = response.data.result;
-      res.send(JSON.stringify(parseProductData(result)));
-    }
+    response => res.send(parseProductData(response.data.result))
   )
   .catch(
     error => res.send(error)
