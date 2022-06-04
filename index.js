@@ -23,6 +23,7 @@ const getProductById = (itemId) => axios.get(
 const parseProductData = (data) =>{
   return {
     thumbnail : data.sync_product.thumbnail_url,
+    id : data.sync_product.id,
     name : data.sync_product.name,
     retailPrice : data.sync_variants[0].retail_price,
     availableSizes : data.sync_variants.map(
@@ -36,15 +37,18 @@ app.get('/', (req, res) => {
   res.send('Printful Interface');
 });
 
-// STORE PRODUCTS INTERFACE
-//[
-//    {
-//        id : Number,
-//        retailPrice : String,
-//        name : String,
-//        thumbnail : String
-//    }
-// ]
+//PRODUCT INTERFACE
+//{
+  // thumbnail : String
+  // name : String
+  // retailPrice : String
+  // availableSizes : [String]
+  // id : Number
+// }
+
+//RETURNS [
+//          PRODUCT
+//        ]
 app.get('/products', (req, res) =>{
   axios.get(process.env.PRINTFUL_PRODUCTS_ENDPOINT,options)
     .then(response => {
@@ -70,12 +74,7 @@ app.get('/products', (req, res) =>{
     });
 });
 
-//PRODUCT INTERFACE
-//{
-  // thumbnail : String
-  // name : String
-  // availableSizes : [String]
-// }
+
 app.get('/product-details/:id', (req, res) => {
 
   axios.get(
