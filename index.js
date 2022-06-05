@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const axios = require('axios');
+const fs = require('fs');
 
 
 
@@ -20,6 +21,20 @@ const getProductById = (itemId) => axios.get(
   options
 );
 
+const parseRegionData = (data) =>{
+  let out = {};
+  data.map(
+    obj => {
+      out[obj["name"]] =
+      {
+        code : obj["code"],
+        states: obj["states"]
+      }
+    }
+  );
+  return out;
+}
+
 const parseProductData = (data) =>{
   return {
     thumbnail : data.sync_product.thumbnail_url,
@@ -32,9 +47,67 @@ const parseProductData = (data) =>{
   }
 }
 
+function updateProductData(res){
+  axios.get(process.env.PRINTFUL_PRODUCTS_ENDPOINT,options)
+    .then(response => {
+      return response.data["result"];
+    })
+    .then(products => {
+      const data = products.map( (item) => getProductById(item.id));
+      axios.all(data)
+        .then(axios.spread((...response) =>{
+          let data = response.map(
+            (item) => parseProductData(item.data.result)
+          );
+          try {
+            fs.writeFileSync('products.json', JSON.stringify(data));
+            console.log("JSON data is saved.");
+            res.send("JSON data is saved.")
+          } catch (error) {
+            console.error(error);
+            res.send(error);
+          }
+        }))
+        .catch(error => {
+          res.send(error);
+        })
+      })
+    .catch(error => {
+      res.send(error);
+    });
+}
 
-app.get('/', (req, res) => {
-  res.send('Printful Interface');
+function updateRegionData(res){
+  axios.get(
+    process.env.PRINTFUL_COUNTRIES_ENDPOINT,
+    options
+  )
+  .then(response =>{
+
+      try {
+        fs.writeFileSync('regions.json', JSON.stringify(
+          parseRegionData(response.data.result)
+        ));
+        console.log("JSON data is saved.");
+        res.send("JSON data is saved.")
+      } catch (error) {
+        console.error(error);
+        res.send(error);
+      }
+    }
+  )
+  .catch(
+    error => res.send(error)
+  );
+}
+
+
+app.get('/updateProducts', (req, res) => {
+  updateProductData(res);
+});
+
+app.get('/updateRegions', (req, res) => {
+  updateRegionData(res);
 });
 
 //PRODUCT INTERFACE
@@ -50,43 +123,33 @@ app.get('/', (req, res) => {
 //          PRODUCT
 //        ]
 app.get('/products', (req, res) =>{
-  axios.get(process.env.PRINTFUL_PRODUCTS_ENDPOINT,options)
-    .then(response => {
-      return response.data["result"];
-    })
-    .then(products => {
-      const data = products.map( (item) => getProductById(item.id));
-      axios.all(data)
-        .then(axios.spread((...response) =>{
-          let data = response.map(
-            (item) => parseProductData(item.data.result)
-          );
-          console.log(data);
-          res.send(data);
-        }))
-        .catch(error => {
-          console.log(error);
-          res.send(error);
-        })
-      })
-    .catch(error => {
-      res.send(error);
-    });
+  try{
+    res.send(require("./products.json"));
+  }
+  catch(error){
+    res.send(error);
+  }
+
 });
 
 
 app.get('/product-details/:id', (req, res) => {
+  try{
+    let products = require("./products.json");
+    res.send(products.find((obj) => {return obj.id = req.params.id}));
+  }
+  catch(error){
+    res.send(error);
+  }
+});
 
-  axios.get(
-    process.env.PRINTFUL_PRODUCTS_ENDPOINT + "/" + req.params.id,
-    options
-    )
-  .then(
-    response => res.send(parseProductData(response.data.result))
-  )
-  .catch(
-    error => res.send(error)
-    );
+app.get('/regions', (req, res) => {
+  try{
+    res.send(require("./regions.json"));
+  }
+  catch(error){
+    res.send(error);
+  }
 
 });
 
