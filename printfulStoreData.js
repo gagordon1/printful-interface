@@ -28,7 +28,6 @@ const parseRegionData = (data) =>{
 }
 
 const parseProductData = (data) =>{
-  console.log(data);
   return {
     thumbnail : data.sync_product.thumbnail_url,
     id : data.sync_product.id,
@@ -38,7 +37,8 @@ const parseProductData = (data) =>{
       variant => {return {
           id: variant.id,
           size : variant.sku.split('_').pop(),
-          name : variant.name
+          name : variant.name,
+          catalogVariantId : variant.variant_id
         }
       }
     )
