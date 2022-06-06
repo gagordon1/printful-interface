@@ -5,10 +5,17 @@ const fs = require('fs');
 
 
 
+
 dotenv.config();
 
 const app = express();
+app.use(express.json())
 const port = process.env.PORT;
+
+
+// ROUTES
+require('./create-payment-intent')(app);
+
 
 const options = {
   headers: {
