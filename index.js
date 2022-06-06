@@ -14,7 +14,7 @@ const port = process.env.PORT;
 
 
 // ROUTES
-require('./create-payment-intent')(app);
+require('./stripe')(app);
 
 
 const options = {

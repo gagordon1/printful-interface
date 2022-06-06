@@ -1,6 +1,6 @@
 
 
-const stripe = require('stripe')(process.env.STRIPE_TEST_API_KEY)
+const stripe = require('stripe')(process.env.STRIPE_TEST_SECRET_KEY)
 
 const calculateOrderAmount = (items) => {
   // Replace this constant with a calculation of the order's amount
@@ -26,6 +26,16 @@ module.exports = function(app){
     res.send({
       clientSecret: paymentIntent.client_secret,
     });
+  });
+
+  app.get('/stripe-config', (req, res) =>{
+    try{
+      res.send(process.env.STRIPE_TEST_PUBLISHABLE_KEY);
+    }
+    catch(error){
+      res.send(error);
+    }
+
   });
 
 }
