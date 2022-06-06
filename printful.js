@@ -53,33 +53,32 @@ module.exports = function(app){
 
   });
 
-  app.get("/shipping-rate", async (req, res) =>{
+  app.post("/shipping-rate", async (req, res) =>{
+      const items = req.body;
 
-      const sampleData = {
+      const data = {
           "recipient": {
-            "address1": "19749 Dearborn St",
-            "city": "Chatsworth",
-            "country_code": "US",
-            "state_code": "CA",
-            "zip": 91311,
-            "phone": "string"
+            "address": items.address,
+            "city": items.city,
+            "country_code": items.country_code,
+            "state_code": items.state_code,
+            "zip": items.zip
           },
           "items": [
             {
-              "variant_id": "202",
-              "external_variant_id": "1001",
-              "warehouse_product_variant_id": "2",
-              "quantity": 10,
-              "value": "2.99"
+              "variant_id": items.variant_id,
+              "quantity": 1
             }
           ],
           "currency": "USD",
           "locale": "en_US"
         }
       try{
+        console.log("Sending data to printful...");
+        console.log(data);
         const rawResponse = await axios.post(
           process.env.PRINTFUL_SHIPPING_RATE_ENDPOINT,
-          sampleData,
+          data,
           options
         );
         const content = rawResponse.data;
