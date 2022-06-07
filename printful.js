@@ -74,10 +74,40 @@ module.exports = function(app){
           "locale": "en_US"
         }
       try{
+        const rawResponse = await axios.post(
+          process.env.PRINTFUL_SHIPPING_RATE_ENDPOINT,
+          data,
+          options
+        );
+        const content = rawResponse.data;
+
+        console.log(content);
+        res.send(content);
+
+      }catch(error){
+        console.log(error);
+        res.send(error.message);
+      }
+
+
+  });
+
+  app.post("/tax-rate", async (req, res) =>{
+      const items = req.body;
+
+      const data = {
+        recipient : {
+          country_code : items.country_code,
+          state_code : items.state_code,
+          city : items.city,
+          zip : items.zip
+        }
+      }
+      try{
         console.log("Sending data to printful...");
         console.log(data);
         const rawResponse = await axios.post(
-          process.env.PRINTFUL_SHIPPING_RATE_ENDPOINT,
+          process.env.PRINTFUL_TAX_RATE_ENDPOINT,
           data,
           options
         );
