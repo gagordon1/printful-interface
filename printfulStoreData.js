@@ -47,6 +47,9 @@ const parseProductData = (data) =>{
 
 
 module.exports = {
+  getSyncProduct : function(itemId){
+    return getProductById(itemId)
+  },
   updateProductData : function (res){
     axios.get(process.env.PRINTFUL_PRODUCTS_ENDPOINT,options)
       .then(response => {

@@ -7,9 +7,15 @@ const app = express();
 app.use(express.json())
 const port = process.env.PORT;
 
+const { MongoClient } = require("mongodb");
+// Connection URI
+const uri = process.env.MONGODB_URI;
+// Create a new MongoClient
+const client = new MongoClient(uri);
+
 
 // ROUTES
-require('./stripe')(app);
+require('./orders')(app, client);
 require('./printful')(app);
 const printfulStoreData = require('./printfulStoreData');
 

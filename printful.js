@@ -1,12 +1,12 @@
 const axios = require('axios');
+const orderData = require('./printfulOrderData')
 
-const options = {
-  headers: {
-    Authorization: 'Bearer ' + process.env.PRINTFUL_AUTH_KEY
-  }
-}
 
 module.exports = function(app){
+
+
+
+
   app.get("/submit-order", async (req, res) => {
 
     let opt = {
@@ -56,38 +56,14 @@ module.exports = function(app){
   app.post("/shipping-rate", async (req, res) =>{
       const items = req.body;
 
-      const data = {
-          "recipient": {
-            "address": items.address,
-            "city": items.city,
-            "country_code": items.country_code,
-            "state_code": items.state_code,
-            "zip": items.zip
-          },
-          "items": [
-            {
-              "variant_id": items.variant_id,
-              "quantity": 1
-            }
-          ],
-          "currency": "USD",
-          "locale": "en_US"
-        }
-      try{
-        const rawResponse = await axios.post(
-          process.env.PRINTFUL_SHIPPING_RATE_ENDPOINT,
-          data,
-          options
-        );
-        const content = rawResponse.data;
-
-        console.log(content);
-        res.send(content);
-
-      }catch(error){
-        console.log(error);
-        res.send(error.message);
-      }
+      res.send(orderData.getShippingRate(
+        items.address,
+        items.city,
+        items.country_code,
+        items.state_code,
+        items.zip,
+        items.variant_id
+      ));
 
 
   });
@@ -95,33 +71,12 @@ module.exports = function(app){
   app.post("/tax-rate", async (req, res) =>{
       const items = req.body;
 
-      const data = {
-        recipient : {
-          country_code : items.country_code,
-          state_code : items.state_code,
-          city : items.city,
-          zip : items.zip
-        }
-      }
-      try{
-        console.log("Sending data to printful...");
-        console.log(data);
-        const rawResponse = await axios.post(
-          process.env.PRINTFUL_TAX_RATE_ENDPOINT,
-          data,
-          options
-        );
-        const content = rawResponse.data;
-
-        console.log(content);
-        res.send(content);
-
-      }catch(error){
-        console.log(error);
-        res.send(error.message);
-      }
-
-
+      res.send(orderData.getTaxRate(
+        items.country_code,
+        items.state_code,
+        items.city,
+        items.zip)
+      );
   });
 
 }
