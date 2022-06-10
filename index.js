@@ -48,7 +48,7 @@ app.get('/products', (req, res) =>{
 app.get('/product-details/:id', (req, res) => {
   try{
     let products = require("./products.json");
-    res.send(products.find((obj) => {return obj.id = req.params.id}));
+    res.send(products.find((obj) => {return obj.id == req.params.id}));
   }
   catch(error){
     res.send(error);

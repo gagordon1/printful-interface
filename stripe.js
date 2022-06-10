@@ -1,4 +1,4 @@
-
+const Order = require('./Order')
 
 const stripe = require('stripe')(process.env.STRIPE_TEST_SECRET_KEY)
 
@@ -10,9 +10,25 @@ const calculateOrderAmount = (items) => {
 };
 
 
+
+
+
+//Pay then immediately submit order to printful
+// REQUEST:
+// {
+//
+//
+//
+//
+//
+//}
 module.exports = function(app){
   app.post("/create-payment-intent", async (req, res) => {
     const { items } = req.body;
+
+    const order = new Order()
+
+    console.log(req.body);
 
     // Create a PaymentIntent with the order amount and currency
     const paymentIntent = await stripe.paymentIntents.create({
