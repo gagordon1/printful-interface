@@ -8,6 +8,52 @@ const options = {
 }
 
 module.exports = {
+  submitOrder : async function (variantId, name, address, suite, city, countryCode, stateCode, zip){
+    let opt = {
+      ...options,
+      params : {
+        confirm : "false"
+      }
+    };
+
+    let order = {
+        recipient: {
+            name: name,
+            address1: address,
+            city: city,
+            country_code: countryCode,
+            zip: zip
+        },
+        items: [
+            {
+                sync_variant_id: variantId,
+                quantity: 1
+            }
+        ]
+    }
+    if (suite !== ""){
+      order.recipient.address2 = suite;
+    }
+    if (stateCode !== ""){
+      order.recipient.state_code = stateCode
+    }
+
+    try{
+      const rawResponse = await axios.post(
+        process.env.PRINTFUL_ORDERS_ENDPOINT,
+        order,
+        opt
+      )
+
+      const content = rawResponse.data;
+      return(content);
+
+    }
+    catch(error) {
+      console.log(error);
+      return(error.message);
+    }
+  },
   getTaxRate : async function (countryCode, stateCode, city, zip){
     const data = {
       recipient : {
@@ -18,7 +64,6 @@ module.exports = {
       }
     }
     try{
-      console.log("Sending tax data to printful...");
       const rawResponse = await axios.post(
         process.env.PRINTFUL_TAX_RATE_ENDPOINT,
         data,

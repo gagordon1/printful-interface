@@ -41,6 +41,7 @@ async function getPriceData(items) {
 // submit order to my database
 // REQUEST:
 // {
+//     id : int,
 //     variantId : int,
 //     catalogVariantId : int,
 //     recipient :{
@@ -67,7 +68,7 @@ module.exports = function(app, mongoClient){
       const priceData = await getPriceData(items);
       const totalPrice = (priceData.retailPrice + priceData.shippingRate)*(1+priceData.taxRate);
 
-      //Create a PaymentIntent with the order amount and currency
+      //create stripe payment intent
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(totalPrice*100),//convert to cents (stripe docs)
         currency: "usd",
@@ -75,29 +76,77 @@ module.exports = function(app, mongoClient){
           enabled: true,
         },
       });
+      console.log("paymentIntent created...")
+
+
+    //make printful order
+      let response = await printful.submitOrder(
+        items.variantId,
+        items.recipient.name,
+        items.recipient.address,
+        items.recipient.suite,
+        items.recipient.city,
+        items.recipient.countryCode,
+        items.recipient.stateCode,
+        items.recipient.zipCode
+      )
+      const printfulResult = response.result;
+
+      if (response.code !== 200){
+        console.log(response);
+        res.send("Error submitting draft order to printful")
+      }
+      console.log("draft order submitted to printful...")
 
       //make order data in mongo
       //
+      const order = {
+        id : printfulResult.id,
+        created : printfulResult.created,
+        myCosts : printfulResult.costs,
+        retailPrice : priceData.retailPrice,
+        customerShippingRate : priceData.shippingRate,
+        customerTaxRate : priceData.taxRate,
+        currency : "usd",
+        productVariantid : items.variantId,
+        recipient :{
+          name : items.recipient.name,
+          email : items.recipient.email,
+          address : items.recipient.address,
+          suite : items.recipient.suite,
+          city : items.recipient.city,
+          country : items.recipient.countryCode,
+          stateCode : items.recipient.stateCode,
+          zipCode : items.recipient.zipCode
+        },
+        paymentComplete : false,
+        shipped : false
+      };
 
-
-      //make order draft in printful
-
-
-
+      try{
+        await mongoClient.connect();
+        //Establish and verify connection
+        const database = mongoClient.db("WebstoreDB")
+        const orders = database.collection("Orders");
+        const mongoResult = await orders.insertOne(order);
+        console.log(`An order was inserted with the _id: ${mongoResult.insertedId}`);
+      }catch(error){
+        console.log(error);
+        res.send("Could not add order to database");
+      }
+      finally  {
+        await mongoClient.close();
+      }
 
       res.send({
         clientSecret: paymentIntent.client_secret,
+        orderId : printfulResult.id
       });
 
-      res.send("hi");
-    }catch(error){
-      res.send(error.message)
-    }
-
-
-
-
-
+  }catch(error){
+    console.log(error);
+    res.send("Error creating payment intent");
+  }
 
   });
 
