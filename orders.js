@@ -150,6 +150,45 @@ module.exports = function(app, mongoClient){
 
   });
 
+  //Upon payment, find order in the database, update its state, email recipient
+  //
+  app.post('/finalize-order', async (req, res)=>{
+    const items = req.body;
+    try{
+      await mongoClient.connect();
+      //Establish and verify connection
+      const database = mongoClient.db("WebstoreDB")
+      const orders = database.collection("Orders");
+      const filter = { id : items.orderId };
+      // create a document that sets the plot of the movie
+      const updateDoc = {
+        $set: {
+          paymentComplete: false
+        }
+      };
+      const result = await orders.updateOne(filter, updateDoc);
+
+      if(result.modifiedCount !== 1){
+        console.log(result);
+        res.send("Number of updated items did not equal 1")
+      }
+      else{
+        console.log("Successfully updated the database.")
+        res.send("Successfully updated the database.");
+      }
+
+    }catch(error){
+      console.log(error);
+      res.send("Could not edit the database");
+    }
+    finally  {
+      await mongoClient.close();
+    }
+
+    
+
+  });
+
   app.get('/stripe-config', (req, res) =>{
     try{
       res.send(process.env.STRIPE_TEST_PUBLISHABLE_KEY);
