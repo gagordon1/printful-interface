@@ -79,7 +79,7 @@ module.exports = {
     }
 
   },
-  getShippingRate : async function (address, city, countryCode, stateCode, zip, variantId){
+  getShippingRate : async function (address, city, countryCode, stateCode, zip, catalogVariantId){
     const data = {
         "recipient": {
           "address": address,
@@ -90,7 +90,7 @@ module.exports = {
         },
         "items": [
           {
-            "variant_id": variantId,
+            "variant_id": catalogVariantId,
             "quantity": 1
           }
         ],
@@ -109,8 +109,9 @@ module.exports = {
         return (content.result);
       }
       else{
+        let out = content.result.find(obj => {return obj.id === "STANDARD"})
 
-        return (content.result.find(obj => obj.id === "STANDARD"));
+        return (out);
       }
 
 

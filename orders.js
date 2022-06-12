@@ -75,6 +75,18 @@ module.exports = function(app, mongoClient){
         automatic_payment_methods: {
           enabled: true,
         },
+        receipt_email : items.recipient.email,
+        shipping : {
+          address : {
+            line1 :items.recipient.address,
+            city : items.recipient.city,
+            country : items.recipient.countryCode,
+            state : items.recipient.stateCode,
+            postal_code :items.recipient.zipCode
+          },
+          name : items.recipient.name
+        }
+
       });
       console.log("paymentIntent created...")
 
@@ -94,7 +106,7 @@ module.exports = function(app, mongoClient){
 
       if (response.code !== 200){
         console.log(response);
-        res.send("Error submitting draft order to printful")
+        res.status(400).send("Error submitting draft order to printful")
       }
       console.log("draft order submitted to printful...")
 
@@ -132,7 +144,7 @@ module.exports = function(app, mongoClient){
         console.log(`An order was inserted with the _id: ${mongoResult.insertedId}`);
       }catch(error){
         console.log(error);
-        res.send("Could not add order to database");
+        res.status(400).send("Could not add order to database");
       }
       finally  {
         await mongoClient.close();
@@ -150,7 +162,17 @@ module.exports = function(app, mongoClient){
 
   });
 
-  //Upon payment, find order in the database, update its state, email recipient
+  //  Request {
+  //     orderId : Integer
+  //  }
+  //
+  //  Response
+  //    200 : If the database updated
+  //    400 if there was an error updating mongo
+  //
+  //
+  // Upon payment, find order in the database, update its state - email me to
+  // confirm the order in printful
   //
   app.post('/finalize-order', async (req, res)=>{
     const items = req.body;
@@ -163,14 +185,14 @@ module.exports = function(app, mongoClient){
       // create a document that sets the plot of the movie
       const updateDoc = {
         $set: {
-          paymentComplete: false
+          paymentComplete: true
         }
       };
       const result = await orders.updateOne(filter, updateDoc);
 
       if(result.modifiedCount !== 1){
         console.log(result);
-        res.send("Number of updated items did not equal 1")
+        res.status(400).send("Number of updated items did not equal 1")
       }
       else{
         console.log("Successfully updated the database.")
@@ -179,13 +201,13 @@ module.exports = function(app, mongoClient){
 
     }catch(error){
       console.log(error);
-      res.send("Could not edit the database");
+      res.status(400).send("Could not edit the database");
     }
     finally  {
       await mongoClient.close();
     }
 
-    
+
 
   });
 
