@@ -105,7 +105,6 @@ module.exports = function(app, mongoClient){
       const printfulResult = response.result;
 
       if (response.code !== 200){
-        console.log(response);
         res.status(400).send("Error submitting draft order to printful")
       }
       console.log("draft order submitted to printful...")
@@ -132,7 +131,8 @@ module.exports = function(app, mongoClient){
           zipCode : items.recipient.zipCode
         },
         paymentComplete : false,
-        shipped : false
+        shipped : false,
+        cancelled : false
       };
 
       try{

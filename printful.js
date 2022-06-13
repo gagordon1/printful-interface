@@ -37,7 +37,6 @@ module.exports = function(app){
         items.zip,
         items.variant_id
       )
-      console.log(orderResponse);
 
       res.send(orderResponse);
 
@@ -68,7 +67,6 @@ module.exports = function(app){
         items.city,
         items.zip
       )
-      console.log(orderResponse);
 
       res.send(orderResponse);
 
