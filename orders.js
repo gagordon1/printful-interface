@@ -127,7 +127,7 @@ module.exports = function(app, mongoClient){
           suite : items.recipient.suite,
           city : items.recipient.city,
           country : items.recipient.countryCode,
-          stateCode : items.recipient.stateCode,
+          state : items.recipient.stateCode,
           zipCode : items.recipient.zipCode
         },
         paymentComplete : false,
