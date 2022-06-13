@@ -19,6 +19,9 @@ require('./orders')(app, client);
 require('./printful')(app);
 const printfulStoreData = require('./printfulStoreData');
 
+app.get('/', (req,res) =>{
+  res.send("Webstore Backend Server");
+});
 
 app.get('/updateProducts', (req, res) => {
   printfulStoreData.updateProductData(res);
