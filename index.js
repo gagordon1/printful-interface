@@ -5,7 +5,11 @@ dotenv.config();
 
 const app = express();
 app.use(express.json())
-res.header('Access-Control-Allow-Origin', 'https://webstore-frontend.herokuapp.com/');
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://webstore-frontend.herokuapp.com/');
+  next();
+});
+
 const port = process.env.PORT;
 
 const { MongoClient } = require("mongodb");
