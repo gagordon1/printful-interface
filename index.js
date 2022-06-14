@@ -31,11 +31,21 @@ app.get('/', (req,res) =>{
 });
 
 app.get('/updateProducts', (req, res) => {
-  printfulStoreData.updateProductData(res);
+  try{
+    printfulStoreData.updateProductData(res);
+  }catch(error){
+    res.send("Error updating Product Data...");
+  }
+
 });
 
 app.get('/updateRegions', (req, res) => {
-  printfulStoreData.updateRegionData(res);
+  try{
+    printfulStoreData.updateRegionData(res);
+  }catch(error){
+  res.send("Error updating Region Data..");
+}
+
 });
 
 //PRODUCT INTERFACE

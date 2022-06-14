@@ -63,8 +63,9 @@ async function getPriceData(items) {
 // 400 and message if card bad
 module.exports = function(app, mongoClient){
   app.post("/create-payment-intent", async (req, res) => {
-    let items = req.body;
+
     try{
+      let items = req.body;
       const priceData = await getPriceData(items);
       const totalPrice = (priceData.retailPrice + priceData.shippingRate)*(1+priceData.taxRate);
 
@@ -107,6 +108,7 @@ module.exports = function(app, mongoClient){
       if (response.code !== 200){
         res.status(400).send("Error submitting draft order to printful")
       }
+      console.log(response);
       console.log("draft order submitted to printful...")
 
       //make order data in mongo
@@ -175,8 +177,9 @@ module.exports = function(app, mongoClient){
   // confirm the order in printful
   //
   app.post('/finalize-order', async (req, res)=>{
-    const items = req.body;
+
     try{
+      const items = req.body;
       await mongoClient.connect();
       //Establish and verify connection
       const database = mongoClient.db("WebstoreDB")
