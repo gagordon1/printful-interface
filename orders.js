@@ -107,6 +107,7 @@ module.exports = function(app, mongoClient){
 
       if (response.code !== 200){
         res.status(400).send("Error submitting draft order to printful")
+        return;
       }
       console.log(response);
       console.log("draft order submitted to printful...")
@@ -147,6 +148,7 @@ module.exports = function(app, mongoClient){
       }catch(error){
         console.log(error);
         res.status(400).send("Could not add order to database");
+        return;
       }
       finally  {
         await mongoClient.close();
@@ -195,16 +197,19 @@ module.exports = function(app, mongoClient){
 
       if(result.modifiedCount !== 1){
         console.log(result);
-        res.status(400).send("Number of updated items did not equal 1")
+        res.status(400).send("Number of updated items did not equal 1");
+        return;
       }
       else{
         console.log("Successfully updated the database.")
         res.send("Successfully updated the database.");
+        return;
       }
 
     }catch(error){
       console.log(error);
       res.status(400).send("Could not edit the database");
+      return;
     }
     finally  {
       await mongoClient.close();
