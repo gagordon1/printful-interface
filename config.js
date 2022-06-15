@@ -1,5 +1,5 @@
 
-const DEVELOPMENT = false;
+const DEVELOPMENT = true;
 
 module.exports = {
   requestOrigin : function () {return (DEVELOPMENT? "*" : "https://www.side-chain.xyz")},
