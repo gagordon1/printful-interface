@@ -1,8 +1,9 @@
 const printful = require('./printfulOrderData');
 const printfulStore = require('./printfulStoreData');
+const config = require('./config')
 
 
-const stripe = require('stripe')(process.env.STRIPE_TEST_SECRET_KEY)
+const stripe = require('stripe')(config.stripeSecretKey())
 
 async function getPriceData(items) {
 
@@ -109,7 +110,6 @@ module.exports = function(app, mongoClient){
         res.status(400).send("Error submitting draft order to printful")
         return;
       }
-      console.log(response);
       console.log("draft order submitted to printful...")
 
       //make order data in mongo
@@ -221,7 +221,7 @@ module.exports = function(app, mongoClient){
 
   app.get('/stripe-config', (req, res) =>{
     try{
-      res.send(process.env.STRIPE_TEST_PUBLISHABLE_KEY);
+      res.send(config.stripePublishableKey());
     }
     catch(error){
       res.send(error);
