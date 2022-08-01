@@ -2,7 +2,7 @@
 const DEVELOPMENT = false;
 
 module.exports = {
-  requestOrigin : function () {return (DEVELOPMENT? "*" : "https://www.side-chain.xyz")},
+  requestOrigin : function () {return (DEVELOPMENT? "*" : "https://webstore-frontend.herokuapp.com")},
 
   stripeSecretKey : function () {return ( DEVELOPMENT? process.env.STRIPE_TEST_SECRET_KEY : process.env.STRIPE_LIVE_SECRET_KEY)},
 
